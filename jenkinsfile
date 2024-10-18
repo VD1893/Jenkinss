@@ -1,0 +1,62 @@
+pipeline {
+    agent any
+
+    environment {
+        MY_API_KEY = credentials('my-api-key') // Assuming you added this as a secret in Jenkins
+    }
+
+    stages {
+        stage('Clone') {
+            steps {
+                git url: 'git@github.com:VD1893/Jenkinss.git', branch: 'main'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building the project...'
+                sh 'echo Build successful' // Replace with your actual build command
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                sh 'echo Tests passed' // Replace with your actual test command
+            }
+        }
+
+        stage('Commit and Push Changes') {
+            steps {
+                script {
+                    // Check if there are any changes
+                    sh '''
+                        git config --global user.email "your_email@example.com"
+                        git config --global user.name "Your Name"
+
+                        # Check for changes
+                        git add .
+                        git diff --cached --quiet || git commit -m "Auto-commit: minor changes"
+                        git push origin main
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying the application...'
+                sh 'echo Deployment successful' // Replace with your actual deployment command
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check the logs for more details.'
+        }
+    }
+}
